@@ -2189,6 +2189,7 @@ static struct file_system_type ubifs_fs_type = {
 	.mount   = ubifs_mount,
 	.kill_sb = kill_ubifs_super,
 };
+MODULE_ALIAS_FS("ubifs");
 
 /*
  * Inode slab cache constructor.

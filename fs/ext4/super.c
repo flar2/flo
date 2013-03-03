@@ -93,6 +93,7 @@ static struct file_system_type ext2_fs_type = {
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
+MODULE_ALIAS_FS("ext2");
 #define IS_EXT2_SB(sb) ((sb)->s_bdev->bd_holder == &ext2_fs_type)
 #else
 #define IS_EXT2_SB(sb) (0)
@@ -107,6 +108,7 @@ static struct file_system_type ext3_fs_type = {
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
+MODULE_ALIAS_FS("ext3");
 #define IS_EXT3_SB(sb) ((sb)->s_bdev->bd_holder == &ext3_fs_type)
 #else
 #define IS_EXT3_SB(sb) (0)
@@ -4814,7 +4816,6 @@ static inline int ext2_feature_set_ok(struct super_block *sb)
 		return 0;
 	return 1;
 }
-MODULE_ALIAS("ext2");
 #else
 static inline void register_as_ext2(void) { }
 static inline void unregister_as_ext2(void) { }
@@ -4847,7 +4848,6 @@ static inline int ext3_feature_set_ok(struct super_block *sb)
 		return 0;
 	return 1;
 }
-MODULE_ALIAS("ext3");
 #else
 static inline void register_as_ext3(void) { }
 static inline void unregister_as_ext3(void) { }
@@ -4861,6 +4861,7 @@ static struct file_system_type ext4_fs_type = {
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
+MODULE_ALIAS_FS("ext4");
 
 static int __init ext4_init_feat_adverts(void)
 {
