@@ -12,8 +12,7 @@
 #include <linux/sched.h>
 #include <linux/syscore_ops.h>
 #include <linux/timer.h>
-
-#include <asm/sched_clock.h>
+#include <linux/sched_clock.h>
 
 struct clock_data {
 	u64 epoch_ns;

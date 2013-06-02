@@ -23,11 +23,11 @@
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/export.h>
+#include <linux/sched_clock.h>
 
 #include <asm/cputype.h>
 #include <asm/localtimer.h>
 #include <asm/arch_timer.h>
-#include <asm/sched_clock.h>
 #include <asm/hardware/gic.h>
 #include <asm/system_info.h>
 
