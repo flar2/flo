@@ -64,7 +64,7 @@ enum tsens_trip_type {
 #define TSENS_UPPER_STATUS_CLR		BIT((tsens_status_cntl_start + 2))
 #define TSENS_MAX_STATUS_MASK		BIT((tsens_status_cntl_start + 3))
 
-#define TSENS_MEASURE_PERIOD				1
+#define TSENS_MEASURE_PERIOD				4 /* 1 sec. default */
 #define TSENS_8960_SLP_CLK_ENA				BIT(26)
 
 #define TSENS_THRESHOLD_ADDR		(MSM_CLK_CTL_BASE + 0x00003624)
@@ -145,7 +145,7 @@ struct tsens_tm_device_sensor {
 	struct thermal_zone_device	*tz_dev;
 	enum thermal_device_mode	mode;
 	unsigned int			sensor_num;
-	struct work_struct		work;
+	struct work_struct		*work;
 	int				offset;
 	int				calib_data;
 	int				calib_data_backup;
@@ -231,6 +231,20 @@ static int tsens_tz_get_temp(struct thermal_zone_device *thermal,
 
 	return 0;
 }
+
+int tsens_get_sensor_temp(int sensor_num, unsigned long *temp)
+{
+	if (!tmdev)
+	return -ENODEV;
+
+	if (sensor_num < 0 || sensor_num >= TSENS_MAX_SENSORS || !temp)
+		return -EINVAL;
+
+	tsens8960_get_temp(sensor_num, temp);
+
+	return 0;
+}
+EXPORT_SYMBOL(tsens_get_sensor_temp);
 
 int tsens_get_temp(struct tsens_device *device, unsigned long *temp)
 {
@@ -590,6 +604,42 @@ static int tsens_tz_set_trip_temp(struct thermal_zone_device *thermal,
 	return 0;
 }
 
+static int
+tsens_set_tz_trip_temp_degC(int sensor_num, enum tsens_trip_type trip, int temp, struct work_struct *work)
+{
+	struct thermal_zone_device *thermal;
+	int ret;
+
+	if (! tmdev || sensor_num < 0 || sensor_num >= tmdev->tsens_num_sensor)
+		return -EINVAL;
+
+	thermal = tmdev->sensor[sensor_num].tz_dev;
+
+	ret = tsens_tz_set_trip_temp(thermal, trip, temp);
+	if (ret < 0)
+		return ret;
+
+	ret = tsens_tz_activate_trip_type(thermal, trip, THERMAL_TRIP_ACTIVATION_ENABLED);
+	if (ret < 0)
+		return ret;
+
+	tmdev->sensor[sensor_num].work = work;
+
+	return 0;
+}
+
+int
+tsens_set_tz_warm_temp_degC(int sensor_num, int temp, struct work_struct *work)
+{
+	return tsens_set_tz_trip_temp_degC(sensor_num, TSENS_TRIP_STAGE2, temp, work);
+}
+
+int
+tsens_set_tz_cool_temp_degC(int sensor_num, int temp, struct work_struct *work)
+{
+	return tsens_set_tz_trip_temp_degC(sensor_num, TSENS_TRIP_STAGE1, temp, work);
+}
+
 static struct thermal_zone_device_ops tsens_thermal_zone_ops = {
 	.get_temp = tsens_tz_get_temp,
 	.get_mode = tsens_tz_get_mode,
@@ -602,15 +652,6 @@ static struct thermal_zone_device_ops tsens_thermal_zone_ops = {
 	.notify = tsens_tz_notify,
 };
 
-static void notify_uspace_tsens_fn(struct work_struct *work)
-{
-	struct tsens_tm_device_sensor *tm = container_of(work,
-		struct tsens_tm_device_sensor, work);
-
-	sysfs_notify(&tm->tz_dev->device.kobj,
-					NULL, "type");
-}
-
 static void tsens_scheduler_fn(struct work_struct *work)
 {
 	struct tsens_tm_device *tm = container_of(work, struct tsens_tm_device,
@@ -618,7 +659,7 @@ static void tsens_scheduler_fn(struct work_struct *work)
 	unsigned int threshold, threshold_low, i, code, reg, sensor, mask;
 	unsigned int sensor_addr;
 	bool upper_th_x, lower_th_x;
-	int adc_code;
+	unsigned triggered = 0;
 
 	if (tmdev->hw_type == APQ_8064) {
 		reg = readl_relaxed(TSENS_8064_STATUS_CNTL);
@@ -649,7 +690,7 @@ static void tsens_scheduler_fn(struct work_struct *work)
 	for (i = 0; i < tmdev->tsens_num_sensor; i++) {
 		if (i == TSENS_8064_SEQ_SENSORS)
 			sensor_addr += TSENS_8064_S4_S5_OFFSET;
-		if (sensor & TSENS_MASK1) {
+		if ((sensor & TSENS_MASK1) != 0 && tm->sensor[i].work) { 
 			code = readl_relaxed(sensor_addr);
 			upper_th_x = code >= threshold;
 			lower_th_x = code <= threshold_low;
@@ -658,11 +699,7 @@ static void tsens_scheduler_fn(struct work_struct *work)
 			if (lower_th_x)
 				mask |= TSENS_LOWER_STATUS_CLR;
 			if (upper_th_x || lower_th_x) {
-				/* Notify user space */
-				schedule_work(&tm->sensor[i].work);
-				adc_code = readl_relaxed(sensor_addr);
-				pr_debug("Trigger (%d degrees) for sensor %d\n",
-					tsens_tz_code_to_degC(adc_code, i), i);
+				triggered |= (1 << i);	
 			}
 		}
 		sensor >>= 1;
@@ -673,6 +710,26 @@ static void tsens_scheduler_fn(struct work_struct *work)
 	else
 	writel_relaxed(reg & mask, TSENS_CNTL_ADDR);
 	mb();
+
+	/* Actually schedule the work after changing the masks so that
+	 * we don't overwrite any changes that these callbacks want
+	 * to make.
+	 *
+	 * Put a memory barrier before to ensure that we have actually
+	 * made the change to the sensor.
+	 */
+
+	if (triggered)
+		for (i = 0; i < tmdev->tsens_num_sensor; i++)
+			if ((triggered & (1 <<i)) != 0) {
+				struct work_struct *work;
+
+				pr_info("msm_thermal: trigger for sensor %d\n", i);
+				work = tm->sensor[i].work;
+				tm->sensor[i].work = NULL;
+				if (work)
+					schedule_work(work);
+			}
 }
 
 static irqreturn_t tsens_isr(int irq, void *data)
@@ -872,8 +929,7 @@ static int tsens_calib_sensors8660(void)
 		tmdev->sensor[TSENS_MAIN_SENSOR].calib_data;
 
 	tmdev->prev_reading_avail = false;
-	INIT_WORK(&tmdev->sensor[TSENS_MAIN_SENSOR].work,
-						notify_uspace_tsens_fn);
+	tmdev->sensor[TSENS_MAIN_SENSOR].work = NULL; 
 
 	return 0;
 }
@@ -901,7 +957,7 @@ static int tsens_calib_sensors8960(void)
 			- (tmdev->sensor[i].calib_data *
 			tmdev->sensor[i].slope_mul_tsens_factor);
 		tmdev->prev_reading_avail = false;
-		INIT_WORK(&tmdev->sensor[i].work, notify_uspace_tsens_fn);
+		tmdev->sensor[i].work = NULL;
 	}
 
 	return 0;
