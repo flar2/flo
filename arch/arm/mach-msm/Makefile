@@ -319,6 +319,9 @@ obj-$(CONFIG_HTC_HEADSET) += htc_headset.o
 obj-$(CONFIG_MSM_RMT_STORAGE_CLIENT) += rmt_storage_client.o
 obj-$(CONFIG_MSM_SDIO_SMEM) += sdio_smem.o
 obj-$(CONFIG_MSM_RPM) += rpm.o
+
+obj-$(CONFIG_LCD_KCAL) += msm_kcal_ctrl.o
+
 ifdef CONFIG_MSM_RPM
 	obj-$(CONFIG_ARCH_APQ8064) += rpm_resources.o
 	obj-$(CONFIG_ARCH_MSM8960) += rpm_resources.o
