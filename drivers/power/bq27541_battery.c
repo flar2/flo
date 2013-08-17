@@ -32,6 +32,8 @@
 #include <linux/miscdevice.h>
 #include <mach/gpio.h>
 
+#include <linux/fastchg.h> 
+
 #define SMBUS_RETRY                                     (0)
 #define GPIOPIN_LOW_BATTERY_DETECT	  29
 #define BATTERY_POLLING_RATE	(60)
@@ -160,8 +162,13 @@ void bq27541_check_cabe_type(void)
 	        usb_on = 0;
 	}
 	else if(bq27541_battery_cable_status  == USB_Cable) {
-		usb_on = 1;
-		ac_on = 0;
+		if (force_fast_charge == 1) {
+			ac_on = 1;
+			usb_on = 0;
+		} else {
+			usb_on = 1;
+			ac_on = 0;
+		}
 	}
 	else {
 		ac_on = 0;
