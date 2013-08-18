@@ -454,6 +454,63 @@ void doubletap2wake_func(int x, int y)
         return;
 }
 
+static int __init get_s2w_opt(char *s2w)
+{
+	if (strcmp(s2w, "0") == 0) {
+		s2w_switch = 0;
+	} else if (strcmp(s2w, "1") == 0) {
+		s2w_switch = 1;
+	} else if (strcmp(s2w, "2") == 0) {
+		s2w_switch = 2;
+	} else {
+		s2w_switch = 0;
+	}
+	return 1;
+}
+
+__setup("s2w=", get_s2w_opt); 
+
+static int __init get_dt2w_opt(char *dt2w)
+{
+	if (strcmp(dt2w, "0") == 0) {
+		dt2w_switch = 0;
+	} else if (strcmp(dt2w, "1") == 0) {
+		dt2w_switch = 1;
+	} else {
+		dt2w_switch = 0;
+	}
+	return 1;
+}
+
+__setup("dt2w=", get_dt2w_opt); 
+
+static int __init get_shortsweep_opt(char *shorts)
+{
+	if (strcmp(shorts, "0") == 0) {
+		shortsweep = 0;
+	} else if (strcmp(shorts, "1") == 0) {
+		shortsweep = 1;
+	} else {
+		shortsweep = 0;
+	}
+
+	if (shortsweep) {
+		s2w_begin_v = 400 ;
+		s2w_end_v = 950;
+		s2w_begin_h = 650;
+		s2w_end_h = 1600;
+	} else {
+		s2w_begin_v = 150;
+		s2w_end_v = 1200;
+		s2w_begin_h = 350;
+		s2w_end_h = 1900;
+	}
+
+	return 1;
+}
+
+__setup("shorts=", get_shortsweep_opt);
+
 /* end sweep2wake */
 
 

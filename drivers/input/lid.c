@@ -33,6 +33,22 @@ struct delayed_work lid_hall_sensor_work;
 int enable_lid = 1;
 module_param( enable_lid, int, 0644 );
 
+static int __init get_lid_opt(char *lid)
+{
+	if (strcmp(lid, "0") == 0) {
+		enable_lid = 0;
+	} else if (strcmp(lid, "1") == 0) {
+		enable_lid = 1;
+	} else {
+		enable_lid = 1;
+	}
+	return 1;
+}
+
+__setup("lid=", get_lid_opt); 
+
+
+
 /*
  * functions declaration
  */
