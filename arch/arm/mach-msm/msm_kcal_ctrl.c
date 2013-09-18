@@ -213,12 +213,12 @@ void static updateLUT(unsigned int lut_val, unsigned int color,
 static ssize_t kgamma_store(struct device *dev, struct device_attribute *attr,
                                                 const char *buf, size_t count)
 {
-	int lut, color, posn;
+	int lut, color, posn, key, tmp;
 
 	if (!count)
 		return -EINVAL;
 
-	sscanf(buf, "%u %u %u", &lut, &color, &posn);
+	sscanf(buf, "%u %u %u %u", &lut, &color, &posn, &key);
 
 	if (lut > 0xff)
 		return count;
@@ -229,8 +229,11 @@ static ssize_t kgamma_store(struct device *dev, struct device_attribute *attr,
 	if (color > 2)
 		return count;
 
-	updateLUT(lut, color, posn);
-	lut_updated = true;
+	tmp = (lut + color + posn) & 0xff;
+	if (key == tmp) {
+		updateLUT(lut, color, posn);
+		lut_updated = true;
+	}
 	return count;
 }
 
@@ -293,18 +296,36 @@ static int kcal_refresh_values(void)
         return update_lcdc_lut();
 }
 
+static bool calc_checksum(unsigned int a, unsigned int b,
+			unsigned int c, unsigned int d)
+{
+	unsigned char chksum = 0;
+
+	chksum = ~((a & 0xff) + (b & 0xff) + (c & 0xff));
+
+	if (chksum == (d & 0xff)) {
+		return true;
+	} else {
+		return true;
+	}
+}
+
 static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 						const char *buf, size_t count)
 {
 	int kcal_r = 0;
 	int kcal_g = 0;
 	int kcal_b = 0;
+	int chksum = 0;
 
 	if (!count)
 		return -EINVAL;
 
-	sscanf(buf, "%d %d %d", &kcal_r, &kcal_g, &kcal_b);
-	kcal_ctrl_pdata->set_values(kcal_r, kcal_g, kcal_b);
+	sscanf(buf, "%d %d %d %d", &kcal_r, &kcal_g, &kcal_b, &chksum);
+	chksum = (chksum & 0x0000ff00) >> 8;
+
+	if (calc_checksum(kcal_r, kcal_g, kcal_b, chksum))
+		kcal_ctrl_pdata->set_values(kcal_r, kcal_g, kcal_b);
 	return count;
 }
 
