@@ -513,6 +513,37 @@ static int __init get_shortsweep_opt(char *shorts)
 
 __setup("shorts=", get_shortsweep_opt);
 
+
+static int __init get_orient_opt(char *orient)
+{
+	if (strcmp(orient, "0") == 0) {
+		s2w_orientation = 0;
+	} else if (strcmp(orient, "1") == 0) {
+		s2w_orientation = 1;
+	} else if (strcmp(orient, "2") == 0) {
+		s2w_orientation = 2;
+	} else {
+		s2w_orientation = 0;
+	}
+	return 1;
+}
+
+__setup("orient=", get_orient_opt); 
+
+static int __init get_pwr_key_opt(char *pwr_key)
+{
+	if (strcmp(pwr_key, "0") == 0) {
+		pwrkey_suspend = 0;
+	} else if (strcmp(pwr_key, "1") == 0) {
+		pwrkey_suspend = 1;
+	} else {
+		pwrkey_suspend = 0;
+	}
+	return 1;
+}
+
+__setup("pwr_key=", get_pwr_key_opt); 
+
 /* end sweep2wake */
 
 
