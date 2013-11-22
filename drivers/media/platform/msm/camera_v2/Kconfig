@@ -1,0 +1,151 @@
+config MSM_CAMERA_SENSOR
+	    bool "Qualcomm MSM camera sensor support"
+	    depends on MSMB_CAMERA
+        ---help---
+          This flag enables support for Camera Sensor.
+          The sensor driver is capable of providing real time
+          data for camera support. The driver support V4L2
+          subdev APIs.
+
+config MSM_ACTUATOR
+        bool "Qualcomm MSM actuator support"
+        depends on MSMB_CAMERA
+
+
+config MSM_CPP
+        bool "Qualcomm MSM Camera Post Processing Engine support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for Camera Post-processing Engine
+          The Post processing engine is capable of scaling
+          and cropping image. The driver support V4L2 subdev
+          APIs.
+
+config MSM_CCI
+        bool "Qualcomm MSM Camera Control Interface support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for Camera Control Interface driver only
+          for those platforms that have hardware support. This driver
+          is responsible for handling I2C read and write on the I2C
+          bus. It is also responsible for synchronization with
+          GPIO and data frames.
+
+config MSM_CSI20_HEADER
+        bool "Qualcomm MSM CSI 2.0 Header"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for CSI drivers to include 2.0
+          header. This header has register macros and its
+          values and bit mask for register configuration bits
+          This config macro is required targets based on 8960,
+          8930 and 8064 platforms.
+
+config MSM_CSI30_HEADER
+        bool "Qualcomm MSM CSI 3.0 Header"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for CSI drivers to include 3.0
+          header. This header has register macros and its
+          values and bit mask for register configuration bits
+          This config macro is required for targets based on
+          8064 platforms.
+
+config MSM_CSIPHY
+        bool "Qualcomm MSM Camera Serial Interface Physical receiver support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for Camera Serial Interface
+          Physical receiver. It deserializes packets and
+          supports detection of packet start and stop
+          signalling.
+
+config MSM_CSID
+        bool "Qualcomm MSM Camera Serial Interface decoder support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for Camera Serial Interface decoder.
+          It supports lane merging and decoding of packets
+          based on cid which is mapped to a virtual channel
+          and datatype.
+
+config MSM_EEPROM
+        bool "Qualcomm MSM Camera ROM Interface for Calibration support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for ROM Interface for Calibration
+          Provides interface for reading the Claibration data.
+          and also provides support for writing data in case of FLASH ROM.
+	  Currently supports I2C, CCI and SPI protocol
+
+config MSM_ISPIF
+        bool "Qualcomm MSM Image Signal Processing interface support"
+        depends on MSMB_CAMERA
+        ---help---
+          Enable support for Image Signal Processing interface module.
+          This module acts as a crossbar between CSID and VFE. Output
+          of any CID of CSID can be routed to of of pixel or raw
+          data interface in VFE.
+
+config S5K3L1YX
+	bool "Sensor S5K3L1YX (BAYER 12M)"
+	depends on MSMB_CAMERA
+	---help---
+		Samsung 12 MP Bayer Sensor with auto focus, uses
+		4 mipi lanes, preview config = 1984 * 1508 at 30 fps,
+		snapshot config = 4000 * 3000 at 20 fps,
+		hfr video at 60, 90 and 120 fps.
+
+config IMX111
+	bool "Sensor IMX111 (Sony 8MP)"
+	depends on MSMB_CAMERA
+        select SEKONIX_LENS_ACT
+	---help---
+	  Sensorony 8M Bayer Sensor modules with Autofocus
+
+config IMX111_ACT
+       bool "Actuator imx111 (BAYER 8M)"
+       depends on MSMB_CAMERA
+       select MSM_ACTUATOR
+       default n
+       ---help---
+         Actuator for SONY 8 MP Bayer Sensor
+
+config SEKONIX_LENS_ACT
+       bool "Actuator SEKONIX LENS"
+       depends on MSMB_CAMERA
+       select MSM_ACTUATOR
+       default n
+       ---help---
+         Actuator for Sekonix Lens
+
+config IMX119
+	bool "Sensor IMX119"
+	depends on MSMB_CAMERA
+	---help---
+	  Bayer Sensor modules with Autofocus.
+
+config OV5693
+       bool "Sensor ov5693 (Bayer 5M)"
+       depends on MSMB_CAMERA
+
+config MI1040
+       bool "Sensor mi1040 (VGA YUV)"
+       depends on MSMB_CAMERA
+       ---help---
+          Aptina 1.2M YUV Sensor
+
+config MSM_V4L2_VIDEO_OVERLAY_DEVICE
+	tristate "Qualcomm MSM V4l2 video overlay device"
+	---help---
+	  Enables support for the MSM V4L2 video
+	  overlay driver. This allows video rendering
+	  apps to render overlaid video using Video4Linux2
+	  APIs, by using /dev/videoX device
+
+
+config MSM_GEMINI
+	tristate "Qualcomm MSM Gemini JPEG engine support"
+	depends on MSMB_CAMERA && (ARCH_MSM7X30 || ARCH_MSM8X60 || ARCH_MSM8960)
+	---help---
+	  Enables support for the Gemini JPEG encoder engine for 8x60.

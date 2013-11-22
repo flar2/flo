@@ -1,0 +1,26 @@
+config MACH_ASUSTEK
+	bool
+
+menu "ASUSTek Board Selection"
+source "arch/arm/mach-msm/asustek/Kconfig.board"
+endmenu
+
+
+menu "ASUSTek Specific Feature"
+
+config ASUSTEK_PCBID
+	bool "Support PCBID interface"
+	default y
+	depends on MACH_ASUSTEK
+	help
+		PCBID interfaces to support multiple board/peripheral/RF
+		configurations
+
+config ASUSTEK_KEYPAD
+	bool "Support ASUSTek GPIO keypad"
+	depends on MACH_ASUSTEK
+	default y
+	help
+		Select if the GPIO keyboard is attached
+
+endmenu
