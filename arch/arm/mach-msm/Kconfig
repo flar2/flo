@@ -2644,4 +2644,10 @@ config FORCE_FAST_CHARGE
 	  A simple sysfs interface to force adapters that
 	  are detected as USB to charge as AC.
 
+config UPDATE_LCDC_LUT
+	default y
+	bool "enable LCDC LUT"
+	help
+	  enable LCDC LUT
+
 endif
