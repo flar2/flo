@@ -1629,6 +1629,12 @@ config MSM_CPU_FREQ_MIN
 
 endif # CPU_FREQ_MSM
 
+config MSM_SLEEPER
+	bool "Limit max frequency while screen is off"
+	default y
+	help
+	  Limit max frequency while screen is off
+
 config CPU_VOLTAGE_TABLE
 	bool "Enable CPU Voltage Table via sysfs for adjustements"
 	default n
