@@ -48,6 +48,10 @@
 
 unsigned long internal_max = 450000000;
 
+#ifdef CONFIG_CPU_FREQ_GOV_ELEMENTALX
+int graphics_boost = 6;
+#endif
+
 struct clk_pair {
 	const char *name;
 	uint map;
@@ -192,6 +196,10 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 
 
 	trace_kgsl_pwrlevel(device, pwr->active_pwrlevel, pwrlevel->gpu_freq);
+
+#ifdef CONFIG_CPU_FREQ_GOV_ELEMENTALX
+        graphics_boost = pwr->active_pwrlevel;
+#endif
 }
 
 EXPORT_SYMBOL(kgsl_pwrctrl_pwrlevel_change);
