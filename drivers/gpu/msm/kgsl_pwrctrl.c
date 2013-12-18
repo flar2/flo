@@ -49,7 +49,7 @@
 unsigned long internal_max = 450000000;
 
 #ifdef CONFIG_CPU_FREQ_GOV_ELEMENTALX
-int graphics_boost = 6;
+int graphics_boost = 2;
 #endif
 
 struct clk_pair {
