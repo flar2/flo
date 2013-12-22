@@ -10,7 +10,7 @@
  * GNU General Public License for more details.
  *
  */
-
+#define DEBUG
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/platform_device.h>
@@ -3165,6 +3165,11 @@ static void msm_otg_set_vbus_state(int online)
 		pr_debug("PMIC: BSV set\n");
 		//printk("connected charger\n");
 		set_bit(B_SESS_VLD, &motg->inputs);
+		if (otg->phy->state >= OTG_STATE_A_IDLE && usbhost_charge_mode) {
+			printk("[usbhost_charge_mode]: already in host mode, restart chg_work");
+			msm_chg_detect_work(&motg->chg_work.work);
+		}
+
 	} else {
 		pr_debug("PMIC: BSV clear\n");
 		//printk("disconnected charger\n");
@@ -3178,7 +3183,6 @@ static void msm_otg_set_vbus_state(int online)
 			motg->chg_type = USB_INVALID_CHARGER;
 			asus_chg_set_chg_mode(USB_INVALID_CHARGER);
 			msm_otg_notify_charger(motg, 0);
-			msm_otg_reset(otg->phy);			
 		}
 	}
 
@@ -3227,7 +3231,7 @@ static void id_pin_irq_work_function(struct work_struct *work)
 		if (gpio == 0 && otg_host_on == 0) {
 			//otg+charge:  this needs a slight delay or else it doesn't start charging
 			if (usbhost_charge_mode)
-				msleep(20);
+				msleep(40);
 			pr_info("%s: APQ_OTG_ID_PIN is low : Host mode\n", __func__);
 			set_bit(A_BUS_REQ, &motg->inputs);
 			clear_bit(ID, &motg->inputs);
