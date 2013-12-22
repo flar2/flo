@@ -47,7 +47,7 @@ static int g_count = 0;
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
-#define DBS_INPUT_EVENT_MIN_FREQ		(1026000)
+#define DBS_INPUT_EVENT_MIN_FREQ		(1134000)
 #define DEF_UI_DYNAMIC_SAMPLING_RATE		(30000)
 #define DBS_UI_SAMPLING_MIN_TIMEOUT		(30)
 #define DBS_UI_SAMPLING_MAX_TIMEOUT		(1000)
@@ -1607,9 +1607,9 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		this_dbs_info->cpu = cpu;
 		this_dbs_info->rate_mult = 1;
 		elementalx_powersave_bias_init_cpu(cpu);
-		set_two_phase_freq(1026000);
-	        set_input_event_min_freq_by_cpu(1, 1026000);
-        	set_input_event_min_freq_by_cpu(2, 918000);
+		set_two_phase_freq(1134000);
+	        set_input_event_min_freq_by_cpu(1, 1134000);
+        	set_input_event_min_freq_by_cpu(2, 1026000);
         	set_input_event_min_freq_by_cpu(3, 810000);
         	set_input_event_min_freq_by_cpu(4, 810000);
 		if (dbs_enable == 1) {
