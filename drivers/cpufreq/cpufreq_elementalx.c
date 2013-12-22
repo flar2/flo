@@ -33,7 +33,8 @@
 
 //gboost
 #include <mach/kgsl.h>
-static int orig_up_threshold;
+static int old_up_threshold;
+static int g_count = 0;
 
 #define DEF_SAMPLING_RATE			(50000)
 #define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
@@ -1262,19 +1263,28 @@ if (dbs_tuners_ins.gboost) {
 }
 
 //graphics boost
-	if (graphics_boost == 0 && dbs_tuners_ins.gboost) {
+if (dbs_tuners_ins.gboost) {
+
+	if (g_count < 100 && graphics_boost < 2) {
+	        ++g_count;
+	} else if (g_count > 1) {
+	        --g_count;
+	        --g_count;
+	}
+
+	if (graphics_boost == 0 && g_count > 80) {
 		if (dbs_tuners_ins.up_threshold != dbs_tuners_ins.gboost_threshold)
-			orig_up_threshold = dbs_tuners_ins.up_threshold;
+			old_up_threshold = dbs_tuners_ins.up_threshold;
 		dbs_tuners_ins.up_threshold = dbs_tuners_ins.gboost_threshold;
 	} else {
 		if (dbs_tuners_ins.up_threshold == dbs_tuners_ins.gboost_threshold)
-			dbs_tuners_ins.up_threshold = orig_up_threshold;
+			dbs_tuners_ins.up_threshold = old_up_threshold;
 	}
-
-	if (graphics_boost == 1 && dbs_tuners_ins.gboost) {
+	if (g_count > 40) {
 		input_event_boost = true;
 		input_event_boost_expired = jiffies + usecs_to_jiffies(dbs_tuners_ins.sampling_rate * 2);
 	}
+}
 //end
 
 	if (num_online_cpus() > 1) {
