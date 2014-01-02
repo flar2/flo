@@ -866,7 +866,7 @@ static ssize_t elan_ktf3k_shortsweep_dump(struct device *dev,
 		s2w_begin_v = 400 ;
 		s2w_end_v = 950;
 		s2w_begin_h = 650;
-		s2w_end_h = 1600;
+		s2w_end_h = 1750;
 	} else {
 		s2w_begin_v = 150;
 		s2w_end_v = 1200;
