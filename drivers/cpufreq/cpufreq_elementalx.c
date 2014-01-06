@@ -36,7 +36,7 @@
 static int old_up_threshold;
 static int g_count = 0;
 
-#define DEF_SAMPLING_RATE			(50000)
+#define DEF_SAMPLING_RATE			(30000)
 #define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
 #define DEF_FREQUENCY_UP_THRESHOLD		(80)
 #define DEF_SAMPLING_DOWN_FACTOR		(1)
@@ -47,8 +47,8 @@ static int g_count = 0;
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
-#define DBS_INPUT_EVENT_MIN_FREQ		(1134000)
-#define DEF_UI_DYNAMIC_SAMPLING_RATE		(30000)
+#define DBS_INPUT_EVENT_MIN_FREQ		(1026000)
+#define DEF_UI_DYNAMIC_SAMPLING_RATE		(10000)
 #define DBS_UI_SAMPLING_MIN_TIMEOUT		(30)
 #define DBS_UI_SAMPLING_MAX_TIMEOUT		(1000)
 #define DBS_UI_SAMPLING_TIMEOUT			(80)
@@ -1280,7 +1280,7 @@ if (dbs_tuners_ins.gboost) {
 		if (dbs_tuners_ins.up_threshold == dbs_tuners_ins.gboost_threshold)
 			dbs_tuners_ins.up_threshold = old_up_threshold;
 	}
-	if (g_count > 40) {
+	if (g_count > 30) {
 		input_event_boost = true;
 		input_event_boost_expired = jiffies + usecs_to_jiffies(dbs_tuners_ins.sampling_rate * 2);
 	}
@@ -1607,8 +1607,8 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		this_dbs_info->cpu = cpu;
 		this_dbs_info->rate_mult = 1;
 		elementalx_powersave_bias_init_cpu(cpu);
-		set_two_phase_freq(1134000);
-	        set_input_event_min_freq_by_cpu(1, 1134000);
+		set_two_phase_freq(1026000);
+	        set_input_event_min_freq_by_cpu(1, 1026000);
         	set_input_event_min_freq_by_cpu(2, 1026000);
         	set_input_event_min_freq_by_cpu(3, 810000);
         	set_input_event_min_freq_by_cpu(4, 810000);
