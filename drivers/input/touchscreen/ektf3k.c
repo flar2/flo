@@ -245,8 +245,7 @@ static unsigned int dt2w_2_y[2] = {0, 0};
 
 #define S2W_TIMEOUT 50
 #define DT2W_TIMEOUT_MAX 50
-#define DT2W_TIMEOUT_MIN 4
-#define DT2W_DELTA 150
+#define DT2W_DELTA 200
 
 void sweep2wake_setdev(struct input_dev * input_device) {
 	sweep2wake_pwrdev = input_device;
@@ -446,13 +445,12 @@ static void doubletap2wake_func(int x, int y)
 		delta_x = (dt2w_2_x[0]-dt2w_2_x[1]);
 		delta_y = (dt2w_2_y[0]-dt2w_2_y[1]);
 
-		if ((abs(delta_x) < DT2W_DELTA) && (abs(delta_y) < DT2W_DELTA)) {
-			if ( ((dt2w_time[0] - dt2w_time[1]) > DT2W_TIMEOUT_MIN)
-					 && ((dt2w_time[0] - dt2w_time[1]) < DT2W_TIMEOUT_MAX)) {
+		if ((abs(delta_x) < DT2W_DELTA) 
+			&& (abs(delta_y) < DT2W_DELTA)
+			&& ((dt2w_time[0] - dt2w_time[1]) < DT2W_TIMEOUT_MAX)) {
 
 	                        printk("[dt2w]: OFF->ON\n");
 	                        sweep2wake_pwrtrigger();
-			}
 		} 
 	}
 
