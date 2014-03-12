@@ -63,7 +63,7 @@
 #undef CONFIG_HAS_EARLYSUSPEND
 #endif
 
-bool backlight_dimmer = true;
+bool backlight_dimmer = false;
 module_param(backlight_dimmer, bool, 0755);
 
 static unsigned char *fbram;
@@ -205,13 +205,13 @@ static void msm_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	else if (value >= MAX_BACKLIGHT_BRIGHTNESS)
 		bl_lvl = mfd->panel_info.bl_max;
 	else if (backlight_dimmer)
-		if (value < 11)
+		if (value < 8)
 			bl_lvl = 1;
 		else
 			bl_lvl = (mfd->panel_info.bl_min + ((value - 1) * 2 *
 				(mfd->panel_info.bl_max - mfd->panel_info.bl_min) +
 				MAX_BACKLIGHT_BRIGHTNESS - 1) /
-				(MAX_BACKLIGHT_BRIGHTNESS - 1) / 2) - 10;
+				(MAX_BACKLIGHT_BRIGHTNESS - 1) / 2) - 7;
 	else
 		bl_lvl = mfd->panel_info.bl_min + ((value - 1) * 2 *
 			(mfd->panel_info.bl_max - mfd->panel_info.bl_min) +
