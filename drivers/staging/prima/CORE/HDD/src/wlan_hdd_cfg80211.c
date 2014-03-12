@@ -4361,7 +4361,7 @@ allow_suspend:
      * immediatly after the driver gets connect request(i.e after scan)
      * from supplicant, this result in app's is suspending and not able
      * to process the connect request to AP */
-    hdd_allow_suspend_timeout(1000);
+    hdd_allow_suspend_timeout(500);
 
 #ifdef FEATURE_WLAN_TDLS
     wlan_hdd_tdls_scan_done_callback(pAdapter);
