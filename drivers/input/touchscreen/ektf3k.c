@@ -240,8 +240,8 @@ static unsigned long triptime_hu = 0;
 static unsigned long dt2w_time[2] = {0, 0};
 static unsigned int dt2w_x[2] = {0, 0};
 static unsigned int dt2w_y[2] = {0, 0};
-static unsigned int dt2w_2_x[2] = {0, 0};
-static unsigned int dt2w_2_y[2] = {0, 0};
+static unsigned int last_x = 0;
+static unsigned int last_y = 0;
 
 #define S2W_TIMEOUT 50
 #define DT2W_TIMEOUT_MAX 50
@@ -254,43 +254,26 @@ void sweep2wake_setdev(struct input_dev * input_device) {
 
 EXPORT_SYMBOL(sweep2wake_setdev);
 
-static void reset_sweep2wake(int s2w, int dt2w)
+static void reset_sweep2wake(void)
 {
-	//reset sweep2wake
-	if (s2w) {
-		tripoff_vl = 0;
-		tripoff_vr = 0;
-		tripoff_hd = 0;
-		tripoff_hu = 0;
-		tripon_vl = 0;
-		tripon_vr = 0;
-		tripon_hd = 0;
-		tripon_hu = 0;
-		triptime_vl = 0;
-		triptime_vr = 0;
-		triptime_hd = 0;
-		triptime_hu = 0;
-	}
+	tripoff_vl = 0;
+	tripoff_vr = 0;
+	tripoff_hd = 0;
+	tripoff_hu = 0;
+	tripon_vl = 0;
+	tripon_vr = 0;
+	tripon_hd = 0;
+	tripon_hu = 0;
+	triptime_vl = 0;
+	triptime_vr = 0;
+	triptime_hd = 0;
+	triptime_hu = 0;
 
-	//reset doubletap2wake
-	if (dt2w) {
-		dt2w_time[0] = 0;
-		dt2w_x[0] = 0;
-		dt2w_y[0] = 0;
-		dt2w_time[1] = 0;
-		dt2w_x[1] = 0;
-		dt2w_y[1] = 0;
-		dt2w_2_x[0] = 0;
-		dt2w_2_x[1] = 0;
-		dt2w_2_y[0] = 0;
-		dt2w_2_y[1] = 0;
-	}
-	return;
 }
 
 static void sweep2wake_presspwr(struct work_struct *sweep2wake_presspwr_work)
 {
-	reset_sweep2wake(1,1);
+	reset_sweep2wake();
 
 	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
 	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
@@ -312,7 +295,7 @@ void sweep2wake_pwrtrigger(void)
 static void sweep2wake_func(int x, int y, unsigned long time, int i)
 {
 	if (x < 0 || i > 0) {
-		reset_sweep2wake(1,0);
+		reset_sweep2wake();
 		return;
 	}
 
@@ -419,39 +402,46 @@ static void sweep2wake_func(int x, int y, unsigned long time, int i)
 	}
 }
 
+static void reset_dt2w(void)
+{
+	dt2w_x[0] = 0;
+	dt2w_x[1] = 0;
+	dt2w_y[0] = 0;
+	dt2w_y[1] = 0;
+	dt2w_time[0] = 0;
+	dt2w_time[1] = 0;
+}
+
 static void doubletap2wake_func(int x, int y)
 {
 
-	int delta_x = 0;
-	int delta_y = 0;
+	printk("dt2w x=%d y=%d\n", x, y);
 
-	//printk("x=%d y=%d\n", x, y);
+	if (x >= 0) {
 
-	dt2w_x[1] = dt2w_x[0];
-	dt2w_x[0] = x;
-	dt2w_y[1] = dt2w_y[0];
-	dt2w_y[0] = y;
+		last_x = x;
+		last_y = y;
+	}
 
 	if (x < 0) {
-		dt2w_2_x[1] = dt2w_2_x[0];
-		dt2w_2_x[0] = dt2w_x[1];
-		dt2w_2_y[1] = dt2w_2_y[0];
-		dt2w_2_y[0] = dt2w_y[1];
+		dt2w_x[1] = dt2w_x[0];
+		dt2w_x[0] = last_x;
+		dt2w_y[1] = dt2w_y[0];
+		dt2w_y[0] = last_y;
+
 		dt2w_time[1] = dt2w_time[0];
 		dt2w_time[0] = jiffies;
 		
-		//printk("x0=%d x1=%d time0=%lu time1=%lu\n", dt2w_2_x[0], dt2w_2_x[1], dt2w_time[0], dt2w_time[1]);
+		//printk("dt2w x0=%d x1=%d time0=%lu time1=%lu\n", dt2w_x[0], dt2w_x[1], dt2w_time[0], dt2w_time[1]);
 
-		delta_x = (dt2w_2_x[0]-dt2w_2_x[1]);
-		delta_y = (dt2w_2_y[0]-dt2w_2_y[1]);
+		if ((dt2w_time[0] - dt2w_time[1]) < DT2W_TIMEOUT_MAX) {
 
-		if ((abs(delta_x) < DT2W_DELTA) 
-			&& (abs(delta_y) < DT2W_DELTA)
-			&& ((dt2w_time[0] - dt2w_time[1]) < DT2W_TIMEOUT_MAX)) {
-
-	                        printk("[dt2w]: OFF->ON\n");
-	                        sweep2wake_pwrtrigger();
-		} 
+			if ((abs(dt2w_x[0]-dt2w_x[1]) < DT2W_DELTA) && (abs(dt2w_y[0]-dt2w_y[1]) < DT2W_DELTA)) {
+        	                //printk("dt2w OFF->ON\n");
+				reset_dt2w();
+        	                sweep2wake_pwrtrigger();
+			} 
+		}
 	}
 
         return;
