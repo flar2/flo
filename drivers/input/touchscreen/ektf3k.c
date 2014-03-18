@@ -242,8 +242,6 @@ static unsigned int dt2w_x[2] = {0, 0};
 static unsigned int dt2w_y[2] = {0, 0};
 static unsigned int last_x = 0;
 static unsigned int last_y = 0;
-//static unsigned int dt2w_2_x[2] = {0, 0};
-//static unsigned int dt2w_2_y[2] = {0, 0};
 
 #define S2W_TIMEOUT 50
 #define DT2W_TIMEOUT_MAX 50
