@@ -63,7 +63,7 @@
 #undef CONFIG_HAS_EARLYSUSPEND
 #endif
 
-int backlight_dimmer = 7;
+int backlight_dimmer = 0;
 module_param(backlight_dimmer, int, 0755);
 
 static unsigned char *fbram;
