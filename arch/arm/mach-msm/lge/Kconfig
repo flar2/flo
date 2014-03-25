@@ -22,13 +22,6 @@ config UPDATE_LCDC_LUT
 	help
 	  Set initial Qualcomm LCDC Look Up Table.
 
-config LCD_KCAL
-	bool "Interface to calibrate LCD color temperature"
-	default n
-	depends on MACH_LGE && UPDATE_LCDC_LUT
-	help
-	  Interface to calibrate LCD color temperature
-
 config EARJACK_DEBUGGER
 	bool "Earjack UART debugger support"
 	depends on MACH_APQ8064_MAKO
