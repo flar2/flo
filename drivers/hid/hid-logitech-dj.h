@@ -101,6 +101,7 @@ struct dj_receiver_dev {
 	struct work_struct work;
 	struct kfifo notif_fifo;
 	spinlock_t lock;
+	bool querying_devices;
 };
 
 struct dj_device {
@@ -121,3 +122,4 @@ struct dj_device {
 	(&(dj_dev)->dj_receiver_dev->hdev->dev == (dj_dev)->hdev->dev.parent)
 
 #endif
+
