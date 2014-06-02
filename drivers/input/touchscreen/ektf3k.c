@@ -1072,7 +1072,11 @@ static struct attribute *elan_attr[] = {
 	NULL
 };
 
+#ifdef CONFIG_WAKE_TIMEOUT
+struct kobject *android_touch_kobj;
+#else
 static struct kobject *android_touch_kobj;
+#endif
 
 
 static int elan_ktf3k_touch_sysfs_init(void)
@@ -1464,6 +1468,12 @@ static int elan_ktf3k_ts_set_power_state(struct i2c_client *client, int state)
 	return 0;
 }
 
+#ifdef CONFIG_WAKE_TIMEOUT
+void ext_elan_ktf3k_ts_set_power_state(void)
+{
+	elan_ktf3k_ts_set_power_state(private_ts->client, PWR_STATE_DEEP_SLEEP);
+}
+#endif
 
 static int elan_ktf3k_ts_rough_calibrate(struct i2c_client *client){
       uint8_t cmd[] = {CMD_W_PKT, 0x29, 0x00, 0x01};
