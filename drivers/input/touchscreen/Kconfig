@@ -972,5 +972,12 @@ config TOUCHSCREEN_ELAN_TF_3K
         help
           To compile this driver as a module, choose M here: the
           module will be called atmel_tsadcc.
+
+config WAKE_TIMEOUT
+	tristate "Disable screen wake functions after timeout"
+	default y
+	help
+	  Disable screen wake functions after timeout
+
 endif
 
