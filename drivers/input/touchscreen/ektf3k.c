@@ -1704,7 +1704,7 @@ static void elan_ktf3k_ts_report_data2(struct i2c_client *client, uint8_t *buf)
 					if(unlikely(gPrint_point))
 						touch_debug(DEBUG_INFO, "[elan] finger id=%d X=%d y=%d size=%d pressure=%d\n", i, x, y, touch_size, pressure_size);
 					/* sweep2wake */
-					if (s2w_switch > 0)
+					if (s2w_switch || s2s_switch)
 						sweep2wake_func(x, y, jiffies, i);
 					if (dt2w_switch && scr_suspended)	
 						doubletap2wake_func(x, y);
@@ -1725,7 +1725,7 @@ static void elan_ktf3k_ts_report_data2(struct i2c_client *client, uint8_t *buf)
 
 	/* sweep2wake */
 	if (checksum == 99) {
-		if (s2w_switch > 0)
+		if (s2w_switch || s2s_switch)
 			sweep2wake_func(-1, -1, jiffies, i);
 		if (dt2w_switch && scr_suspended)	
 			doubletap2wake_func(-1, -1);
