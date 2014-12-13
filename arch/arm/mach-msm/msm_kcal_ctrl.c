@@ -569,11 +569,7 @@ int __init kcal_ctrl_init(void)
 	kcalPtr->refresh_display = kcal_refresh_values;
 
 #endif
-	unsigned int addr;
-
-	addr =  kallsyms_lookup_name("update_preset_lcdc_lut");
-	*(funcPtr *)addr = (funcPtr)update_lcdc_lut;
-
+	
 	platform_add_devices(msm_panel_devices,
 		ARRAY_SIZE(msm_panel_devices));
 
