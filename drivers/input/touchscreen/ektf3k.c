@@ -255,7 +255,7 @@ static unsigned int last_y = 0;
 #define SWEEP_DOWN		0x08
 #define WAKE_GESTURE		0x0b
 static struct input_dev *gesture_dev;
-static int gestures_switch = 1;
+static int gestures_switch = 0;
 
 static void report_gesture(int gest)
 {
