@@ -319,7 +319,7 @@ int msm_rotator_imem_allocate(int requestor)
 		rc = 1;
 #endif
 	if (rc == 1) {
-		cancel_delayed_work(&msm_rotator_dev->imem_clk_work);
+		cancel_delayed_work_sync(&msm_rotator_dev->imem_clk_work);
 		if (msm_rotator_dev->imem_clk_state != CLK_EN
 			&& msm_rotator_dev->imem_clk) {
 			clk_prepare_enable(msm_rotator_dev->imem_clk);
@@ -735,6 +735,7 @@ static int msm_rotator_get_plane_sizes(uint32_t format,	uint32_t w, uint32_t h,
 uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 						uint32_t src_width,
 						uint32_t dst_width,
+						uint32_t src_height,
 						uint32_t dst_height,
 						uint32_t dstp0_ystride,
 						uint32_t is_planar420)
@@ -748,6 +749,9 @@ uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 		return -EINVAL;
 
 	if (rot_mode & MDP_ROT_90) {
+
+		if ((src_height % 128) == 8)
+			return -EINVAL;
 
 		/* if rotation 90 degree on fast yuv
 		 * rotator image input width has to be multiple of 8
@@ -801,9 +805,9 @@ uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 	} else {
 		/* if NOT applying rotation 90 degree on fast yuv,
 		 * rotator image input width has to be multiple of 8
-		 * rotator image input height has to be multiple of 2
+		 * rotator image input height has to be multiple of 8
 		*/
-		if (((dst_width % 8) != 0) || ((dst_height % 2) != 0))
+		if (((dst_width % 8) != 0) || ((dst_height % 8) != 0))
 			return -EINVAL;
 	}
 
@@ -1556,7 +1560,7 @@ static int msm_rotator_do_rotate_sub(
 	msm_rotator_wait_for_fence(commit_info->acq_fen);
 	commit_info->acq_fen = NULL;
 
-	cancel_delayed_work(&msm_rotator_dev->rot_clk_work);
+	cancel_delayed_work_sync(&msm_rotator_dev->rot_clk_work);
 	if (msm_rotator_dev->rot_clk_state != CLK_EN) {
 		enable_rot_clks();
 		msm_rotator_dev->rot_clk_state = CLK_EN;
@@ -1654,10 +1658,8 @@ static int msm_rotator_do_rotate_sub(
 
 	msm_rotator_dev->processing = 1;
 	iowrite32(0x1, MSM_ROTATOR_START);
-	mutex_unlock(&msm_rotator_dev->rotator_lock);
 	wait_event(msm_rotator_dev->wq,
 		   (msm_rotator_dev->processing == 0));
-	mutex_lock(&msm_rotator_dev->rotator_lock);
 	status = (unsigned char)ioread32(MSM_ROTATOR_INTR_STATUS);
 	if ((status & 0x03) != 0x01) {
 		pr_err("%s(): AXI Bus Error, issuing SW_RESET\n", __func__);
@@ -1957,6 +1959,7 @@ static int msm_rotator_start(unsigned long arg,
 			fast_yuv_en = !fast_yuv_invalid_size_checker(
 						info.rotations,
 						info.src.width,
+						info.src.height,
 						dst_w,
 						dst_h,
 						dst_w,
@@ -2101,6 +2104,7 @@ static int msm_rotator_finish(unsigned long arg)
 	if (copy_from_user(&session_id, (void __user *)arg, sizeof(s)))
 		return -EFAULT;
 
+	rot_wait_for_commit_queue(true);
 	mutex_lock(&msm_rotator_dev->rotator_lock);
 	for (s = 0; s < MAX_SESSIONS; s++) {
 		if ((msm_rotator_dev->rot_session[s] != NULL) &&
