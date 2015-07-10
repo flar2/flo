@@ -1,7 +1,7 @@
 #
 # Makefile for the kernel DVB frontend device drivers.
 #
-
+ccflags-y := -Wno-array-bounds
 ccflags-y += -I$(srctree)/drivers/media/dvb/dvb-core/
 ccflags-y += -I$(srctree)/drivers/media/common/tuners/
 
