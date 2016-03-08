@@ -60,6 +60,11 @@ static int mmc_queue_thread(void *d)
 	struct request_queue *q = mq->queue;
 	struct mmc_card *card = mq->card;
 
+	struct sched_param scheduler_params = {0};
+	scheduler_params.sched_priority = 1;
+
+	sched_setscheduler(current, SCHED_FIFO, &scheduler_params);
+
 	current->flags |= PF_MEMALLOC;
 
 	down(&mq->thread_sem);
