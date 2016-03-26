@@ -613,7 +613,8 @@ static int bq27541_get_psp(int reg_offset, enum power_supply_property psp,
 	if (psp == POWER_SUPPLY_PROP_STATUS) {
 		ret = bq27541_device->bat_status = rt_value;
 
-		if ((ac_on || usb_on || wireless_on) && !otg_on) {/* Charging detected */
+		//otg+charge - allow charging while otg
+		if ((ac_on || usb_on || wireless_on)/* && !otg_on*/) {/* Charging detected */
 			if (bq27541_device->old_capacity == 100) {
 				val->intval = POWER_SUPPLY_STATUS_FULL;
 			} else {
