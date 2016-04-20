@@ -167,9 +167,6 @@ static void asus_chg_set_chg_mode(enum usb_chg_type chg_src)
 		printk(KERN_INFO "The USB cable status = CHARGER_CDP\n");
 		break;
 	case USB_ACA_A_CHARGER:
-		usb_cable_type_detect(CHARGER_ACA);
-		printk(KERN_INFO "The USB cable status = CHARGER_ACA\n");
-		break;
 	case USB_ACA_B_CHARGER:
 	case USB_ACA_C_CHARGER:
 	case USB_ACA_DOCK_CHARGER:
@@ -2252,7 +2249,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 		line_state = readl_relaxed(USB_PORTSC) & PORTSC_LS;
 		dm_vlgc = line_state & PORTSC_LS_DM;
 		if (vout && !dm_vlgc) { /* VDAT_REF < DM < VLGC */
-			if (test_bit(ID_A, &motg->inputs)) {
+			if (test_bit(ID_A, &motg->inputs) || (usbhost_charge_mode && !test_bit(ID, &motg->inputs))) {
 				motg->chg_type = USB_ACA_DOCK_CHARGER;
 				motg->chg_state = USB_CHG_STATE_DETECTED;
 				delay = 0;
@@ -2278,7 +2275,8 @@ static void msm_chg_detect_work(struct work_struct *w)
 			if (line_state) { /* DP > VLGC or/and DM > VLGC */
 				//otg+charge				
 				if (usbhost_charge_mode) {
-					motg->chg_type = USB_ACA_A_CHARGER;
+					set_bit(ID_A, &motg->inputs);
+					motg->chg_type = USB_ACA_DOCK_CHARGER;
 				} else {	
 					motg->chg_type = USB_PROPRIETARY_CHARGER;
 				}	
@@ -2840,6 +2838,8 @@ static void msm_otg_sm_work(struct work_struct *w)
 			pr_debug("!a_bus_req\n");
 			msm_otg_del_timer(motg);
 			otg->phy->state = OTG_STATE_A_SUSPEND;
+			//otg+charge - disable charging when suspended
+			msm_otg_notify_charger(motg, 0);
 			if (otg->host->b_hnp_enable)
 				msm_otg_start_timer(motg, TA_AIDL_BDIS,
 						A_AIDL_BDIS);
@@ -2864,10 +2864,19 @@ static void msm_otg_sm_work(struct work_struct *w)
 				msm_otg_notify_charger(motg,
 						IDEV_CHG_MIN - motg->mA_port);
 		} else if (!test_bit(ID, &motg->inputs)) {
-			motg->chg_state = USB_CHG_STATE_UNDEFINED;
-			motg->chg_type = USB_INVALID_CHARGER;
-			msm_otg_notify_charger(motg, 0);
-			msm_hsusb_vbus_power(motg, 1);
+			//otg+charge - allow charge in host mode, i.e. when ID pin is low
+			if (usbhost_charge_mode){
+				msm_otg_del_timer(motg);
+				msm_hsusb_vbus_power(motg, 0);
+				if (motg->chg_type == USB_ACA_DOCK_CHARGER)
+					msm_otg_notify_charger(motg,
+							IDEV_ACA_CHG_MAX);
+			} else {
+				motg->chg_state = USB_CHG_STATE_UNDEFINED;
+				motg->chg_type = USB_INVALID_CHARGER;
+				msm_otg_notify_charger(motg, 0);
+				msm_hsusb_vbus_power(motg, 1);
+			}
 		}
 		break;
 	case OTG_STATE_A_SUSPEND:
