@@ -4,6 +4,7 @@
  * Gas Gauge driver for TI's BQ27541
  *
  * Copyright (c) 2012, ASUSTek Inc.
+ * Copyright (c) 2014-2015, timur.mehrvarz@riseup.net
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@
 #include <linux/miscdevice.h>
 #include <mach/gpio.h>
 
-#include <linux/fastchg.h>
+//#include <linux/fastchg.h>
 
 #define SMBUS_RETRY                                     (0)
 #define GPIOPIN_LOW_BATTERY_DETECT	  29
@@ -188,13 +189,8 @@ void bq27541_check_cabe_type(void)
 	        usb_on = 0;
 	}
 	else if(bq27541_battery_cable_status  == USB_Cable) {
-		if (force_fast_charge == 1) {
-			ac_on = 1;
-			usb_on = 0;
-		} else {
-			usb_on = 1;
-			ac_on = 0;
-		}
+		usb_on = 1;
+		ac_on = 0;
 	}
 	else {
 		ac_on = 0;
@@ -855,6 +851,7 @@ static int bq27541_probe(struct i2c_client *client,
 	INIT_DELAYED_WORK(&bq27541_device->low_low_bat_work, low_low_battery_check);
 	cancel_delayed_work(&bq27541_device->status_poll_work);
 
+	mutex_init(&bq27541_device->lock);
 	wake_lock_init(&bq27541_device->low_battery_wake_lock, WAKE_LOCK_SUSPEND, "low_battery_detection");
 	wake_lock_init(&bq27541_device->cable_wake_lock,
 		WAKE_LOCK_SUSPEND, "cable_state_changed");
