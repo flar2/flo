@@ -138,7 +138,7 @@ static struct attribute *attrs[] = {
     &charging_state_attribute.attr,
     &external_power_attribute.attr,
     &charge_slave_devices_attribute.attr,
-    &power_slaves_attribute.attr,,
+    &power_slaves_attribute.attr,
     NULL,
 };
 
