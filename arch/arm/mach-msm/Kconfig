@@ -2630,11 +2630,12 @@ config MSM_CPU_PWRCTL
 	  stand alone power collapse operation. Selecting this option
 	  ensures that they are always off.
 
-config USBHOST
-	bool "USBHOST related runtime configuration"
+config FORCE_FAST_CHARGE
+	bool "Force AC charge mode at will"
 	default y
 	help
-	  A simple sysfs interface to allow switching between native OTG and Fixed-Installation mode.
+	  A simple sysfs interface to force adapters that
+	  are detected as USB to charge as AC.
 
 config UPDATE_LCDC_LUT
 	bool "Set initial Qualcomm LCDC lut"
