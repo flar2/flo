@@ -244,8 +244,8 @@ static unsigned int dt2w_y[2] = {0, 0};
 static unsigned int last_x = 0;
 static unsigned int last_y = 0;
 
-#define S2W_TIMEOUT 50
-#define DT2W_TIMEOUT_MAX 50
+#define S2W_TIMEOUT 90
+#define DT2W_TIMEOUT_MAX 150
 #define DT2W_DELTA 200
 
 /* Wake Gestures */
@@ -295,10 +295,10 @@ static void sweep2wake_presspwr(struct work_struct *sweep2wake_presspwr_work)
 
 	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
 	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(20);
+	msleep(60);
 	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
 	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(20);
+	msleep(60);
 	mutex_unlock(&s2w_lock);
 }
 
