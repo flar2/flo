@@ -1486,8 +1486,8 @@ static int _setup_cipher_aes_cmdlistptrs(struct qce_device *pdev,
 	}
 
 	qce_add_cmd_element(pdev, &ce_vaddr, CRYPTO_GOPROC_REG,
-			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)),
-			&pcl_info->go_proc);
+			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP) |
+			(1 << CRYPTO_CLR_CNTXT)), &pcl_info->go_proc);
 
 	pcl_info->size = (uint32_t)ce_vaddr - (uint32_t)ce_vaddr_start;
 	*pvaddr = (unsigned char *) ce_vaddr;
@@ -1629,8 +1629,8 @@ static int _setup_cipher_des_cmdlistptrs(struct qce_device *pdev,
 	}
 
 	qce_add_cmd_element(pdev, &ce_vaddr, CRYPTO_GOPROC_REG,
-			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)),
-			&pcl_info->go_proc);
+			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)
+			(1 << CRYPTO_CLR_CNTXT)), &pcl_info->go_proc);
 
 	pcl_info->size = (uint32_t)ce_vaddr - (uint32_t)ce_vaddr_start;
 	*pvaddr = (unsigned char *) ce_vaddr;
@@ -1854,8 +1854,8 @@ static int _setup_auth_cmdlistptrs(struct qce_device *pdev,
 	}
 	if (alg != QCE_AEAD_SHA1_HMAC)
 		qce_add_cmd_element(pdev, &ce_vaddr, CRYPTO_GOPROC_REG,
-			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)),
-			&pcl_info->go_proc);
+			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)
+			(1 << CRYPTO_CLR_CNTXT)), &pcl_info->go_proc);
 
 	pcl_info->size = (uint32_t)ce_vaddr - (uint32_t)ce_vaddr_start;
 	*pvaddr = (unsigned char *) ce_vaddr;
@@ -1993,8 +1993,8 @@ static int _setup_aead_cmdlistptrs(struct qce_device *pdev,
 			0, NULL);
 
 	qce_add_cmd_element(pdev, &ce_vaddr, CRYPTO_GOPROC_REG,
-			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP)),
-			&pcl_info->go_proc);
+			((1 << CRYPTO_GO) | (1 << CRYPTO_RESULTS_DUMP) |
+			(1 << CRYPTO_CLR_CNTXT)), &pcl_info->go_proc);
 
 	pcl_info->size = (uint32_t)ce_vaddr - (uint32_t)ce_vaddr_start;
 	*pvaddr = (unsigned char *) ce_vaddr;
