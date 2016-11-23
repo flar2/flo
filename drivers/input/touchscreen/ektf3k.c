@@ -1010,7 +1010,7 @@ static int check_fw_version(const unsigned char*firmware, unsigned int size, int
 static ssize_t update_firmware(struct device *dev, struct device_attribute *devattr,const char *buf, size_t count)
 {
 	 struct i2c_client *client = to_i2c_client(dev);
-	 struct elan_ktf3k_ts_data *ts = i2c_get_clientdata(client);
+	 //struct elan_ktf3k_ts_data *ts = i2c_get_clientdata(client);
 	 struct file *firmware_fp;
 	 char file_path[100];
         unsigned int pos = 0;
