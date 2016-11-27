@@ -399,7 +399,7 @@ void mdp_lcdc_update(struct msm_fb_data_type *mfd)
 	int intr = INTR_DMA_P_DONE;
 #endif
 
-	if (mdp_fb_is_power_off(mfd))
+	if (!mfd->panel_power_on)
 		return;
 
 	down(&mfd->dma->mutex);

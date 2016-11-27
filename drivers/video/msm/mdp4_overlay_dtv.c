@@ -1079,7 +1079,7 @@ void mdp4_dtv_overlay(struct msm_fb_data_type *mfd)
 	struct mdp4_overlay_pipe *pipe;
 
 	mutex_lock(&mfd->dma->ov_mutex);
-	if (mdp_fb_is_power_off(mfd)) {
+	if (!mfd->panel_power_on) {
 		mutex_unlock(&mfd->dma->ov_mutex);
 		return;
 	}

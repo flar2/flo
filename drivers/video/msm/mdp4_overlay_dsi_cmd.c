@@ -1204,7 +1204,7 @@ void mdp4_dsi_cmd_overlay(struct msm_fb_data_type *mfd)
 	mutex_lock(&mfd->dma->ov_mutex);
 	vctrl = &vsync_ctrl_db[cndx];
 
-	if (mdp_fb_is_power_off(mfd)) {
+	if (!mfd->panel_power_on) {
 		mutex_unlock(&mfd->dma->ov_mutex);
 		return;
 	}
