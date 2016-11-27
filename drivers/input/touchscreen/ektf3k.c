@@ -209,10 +209,10 @@ static struct input_dev *sweep2wake_pwrdev;
 static DEFINE_MUTEX(s2w_lock);
 static bool scr_suspended = false;
 
-static int pwrkey_suspend = 1;
+static int pwrkey_suspend = 0;
 static int lid_suspend = 1;
-static int s2w_orientation = 0;
-static int shortsweep = 0;
+static int s2w_orientation = 1;
+static int shortsweep = 1;
 static int dt2w_switch = 1;
 static int dt2w_switch_temp = 1;
 static int dt2w_changed = 0;
