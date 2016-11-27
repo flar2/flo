@@ -308,7 +308,7 @@ static void JDI_command_cabc(struct platform_device *pdev)
 
 	pr_debug("%s: cabc cmd %d\n", __func__, write_cabc[1]);
 
-	if (!mdp_panel_is_power_on(mfd->suspend.panel_power_state))
+	if (!mfd->suspend.panel_power_on)
 		return;
 
 	/* mdp4_dsi_cmd_busy_wait: will turn on dsi clock also */

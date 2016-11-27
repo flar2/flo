@@ -49,16 +49,10 @@
 /* Disable EARLYSUSPEND for mdp driver */
 #define DISABLE_EARLY_SUSPEND
 
-enum {
-	MDP_PANEL_POWER_OFF = 0,
-	MDP_PANEL_POWER_ON,
-	MDP_PANEL_POWER_DOZE,
-};
-
 struct disp_info_type_suspend {
 	boolean op_enable;
 	boolean sw_refreshing_enable;
-	int panel_power_state;
+	boolean panel_power_on;
 	boolean op_suspend;
 };
 
@@ -115,7 +109,7 @@ struct msm_fb_data_type {
 
 	struct hrtimer dma_hrtimer;
 
-	int panel_power_state;
+	boolean panel_power_on;
 	struct work_struct dma_update_worker;
 	struct semaphore sem;
 
@@ -259,49 +253,5 @@ int msm_fb_check_frame_rate(struct msm_fb_data_type *mfd,
 #define INIT_IMAGE_FILE "/initlogo.rle"
 int load_565rle_image(char *filename, bool bf_supported);
 #endif
-
-static inline bool mdp_panel_is_power_off(int panel_power_state)
-{
-	return (panel_power_state == MDP_PANEL_POWER_OFF);
-}
-
-static inline bool mdp_panel_is_power_on_interactive(int panel_power_state)
-{
-	return (panel_power_state == MDP_PANEL_POWER_ON);
-}
-
-static inline bool mdp_panel_is_power_on(int panel_power_state)
-{
-	return !mdp_panel_is_power_off(panel_power_state);
-}
-
-static inline bool mdp_panel_is_power_on_lp(int panel_power_state)
-{
-	return !mdp_panel_is_power_off(panel_power_state) &&
-		!mdp_panel_is_power_on_interactive(panel_power_state);
-}
-
-/* These functions take msm_fb_data_type */
-
-static inline bool mdp_fb_is_power_off(struct msm_fb_data_type *mfd)
-{
-	return (mfd->panel_power_state == MDP_PANEL_POWER_OFF);
-}
-
-static inline bool mdp_fb_is_power_on_interactive(struct msm_fb_data_type *mfd)
-{
-	return (mfd->panel_power_state == MDP_PANEL_POWER_ON);
-}
-
-static inline bool mdp_fb_is_power_on(struct msm_fb_data_type *mfd)
-{
-	return !mdp_fb_is_power_off(mfd);
-}
-
-static inline bool mdp_fb_is_power_on_lp(struct msm_fb_data_type *mfd)
-{
-	return !mdp_fb_is_power_off(mfd) &&
-		!mdp_fb_is_power_on_interactive(mfd);
-}
 
 #endif /* MSM_FB_H */
