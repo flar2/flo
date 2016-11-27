@@ -2645,15 +2645,9 @@ config FORCE_FAST_CHARGE
 	  are detected as USB to charge as AC.
 
 config UPDATE_LCDC_LUT
-	bool "Set initial Qualcomm LCDC lut"
 	default y
+	bool "enable LCDC LUT"
 	help
-	  Set initial Qualcomm LCDC Look Up Table.
-
-config LCD_KCAL
-	tristate "MSM generic LCDC Calibration"
-	default y
-	help
-	  Enable MSM generic LCDC temperature Calibration.
+	  enable LCDC LUT
 
 endif
