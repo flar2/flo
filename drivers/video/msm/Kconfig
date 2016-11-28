@@ -710,3 +710,6 @@ if FB_MSM_MDSS
 	source "drivers/video/msm/mdss/Kconfig"
 endif
 endif
+
+config FB_MSM_KCAL_CTRL
+	bool "KCAL PCC interface"

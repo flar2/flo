@@ -49,6 +49,15 @@
 /* Disable EARLYSUSPEND for mdp driver */
 #define DISABLE_EARLY_SUSPEND
 
+struct mdp_pcc_info {
+	int red;
+	int green;
+	int blue;
+};
+
+void mdp_set_kcal(struct mdp_pcc_info *pcc_info);
+struct mdp_pcc_info mdp_get_kcal(void);
+
 struct disp_info_type_suspend {
 	boolean op_enable;
 	boolean sw_refreshing_enable;

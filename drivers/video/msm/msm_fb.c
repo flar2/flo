@@ -544,6 +544,43 @@ static ssize_t mdp_set_rgb(struct device *dev,
 	return -EINVAL;
 }
 
+struct mdp_pcc_info mdp_get_kcal(void)
+{
+	struct mdp_pcc_info pcc_info;
+	memset(&pcc_info, 0, sizeof(struct mdp_pcc_info));
+	pcc_info.red = pcc_r/128;
+	pcc_info.green = pcc_g/128;
+	pcc_info.blue = pcc_b/128;
+
+	return pcc_info;
+}
+
+void mdp_set_kcal(struct mdp_pcc_info *pcc_info)
+{
+	uint32_t r = 0, g = 0, b = 0;
+	struct mdp_pcc_cfg_data pcc_cfg;
+
+	r = pcc_info->red * 128;
+	g = pcc_info->green * 128;
+	b = pcc_info->blue * 128;
+
+	pr_info("%s: r=%d g=%d b=%d", __func__, r, g, b);
+
+	memset(&pcc_cfg, 0, sizeof(struct mdp_pcc_cfg_data));
+
+	pcc_cfg.block = MDP_BLOCK_DMA_P;
+	pcc_cfg.ops = MDP_PP_OPS_ENABLE | MDP_PP_OPS_WRITE;
+	pcc_cfg.r.r = r;
+	pcc_cfg.g.g = g;
+	pcc_cfg.b.b = b;
+
+	if (mdp4_pcc_cfg(&pcc_cfg) == 0) {
+		pcc_r = r;
+		pcc_g = g;
+		pcc_b = b;
+	}
+}
+
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, msm_fb_msm_fb_type, NULL);
 static DEVICE_ATTR(msm_fb_fps_level, S_IRUGO | S_IWUSR | S_IWGRP, NULL, \
 				msm_fb_fps_level_change);
