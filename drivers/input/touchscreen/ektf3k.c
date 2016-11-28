@@ -822,9 +822,9 @@ static ssize_t elan_ktf3k_wake_gestures_show(struct device *dev,
 static ssize_t elan_ktf3k_wake_gestures_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '2' && buf[1] == '\n')
-		if (gestures_switch != buf[0] - '0')
-			gestures_switch = buf[0] - '0';
+	sscanf(buf, "%d ", &gestures_switch);
+	if (gestures_switch < 0 || gestures_switch > 1)
+		gestures_switch = 0;
 
 	return count;
 }
@@ -844,9 +844,9 @@ static ssize_t elan_ktf3k_sweep2sleep_show(struct device *dev,
 static ssize_t elan_ktf3k_sweep2sleep_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-        	if (s2s_switch != buf[0] - '0')
-		        s2s_switch = buf[0] - '0';
+	sscanf(buf, "%d ", &s2s_switch);
+	if (s2s_switch < 0 || s2s_switch > 1)
+		s2s_switch = 0;
 	
 	return count;
 }
@@ -865,9 +865,9 @@ static ssize_t elan_ktf3k_pwrkey_suspend_show(struct device *dev,
 static ssize_t elan_ktf3k_pwrkey_suspend_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-            if (pwrkey_suspend != buf[0] - '0')
-		        pwrkey_suspend = buf[0] - '0';
+	sscanf(buf, "%d ", &pwrkey_suspend);
+	if (pwrkey_suspend < 0 || pwrkey_suspend > 1)
+		pwrkey_suspend = 0;
 
 	return count;
 }
@@ -886,9 +886,9 @@ static ssize_t elan_ktf3k_lid_suspend_show(struct device *dev,
 static ssize_t elan_ktf3k_lid_suspend_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-            if (lid_suspend != buf[0] - '0')
-		        lid_suspend = buf[0] - '0';
+	sscanf(buf, "%d ", &lid_suspend);
+	if (lid_suspend < 0 || lid_suspend > 1)
+		lid_suspend = 0;
 
 	return count;
 }
@@ -908,9 +908,10 @@ static ssize_t elan_ktf3k_orientation_show(struct device *dev,
 static ssize_t elan_ktf3k_orientation_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '2' && buf[1] == '\n')
-            if (s2w_orientation != buf[0] - '0') 
-		        s2w_orientation = buf[0] - '0';
+	sscanf(buf, "%d ", &s2w_orientation);
+	if (s2w_orientation < 0 || s2w_orientation > 2)
+		s2w_orientation = 0;
+
 
 	return count;
 }
@@ -929,9 +930,9 @@ static ssize_t elan_ktf3k_shortsweep_show(struct device *dev,
 static ssize_t elan_ktf3k_shortsweep_dump(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-        if (shortsweep != buf[0] - '0') 
-		    shortsweep = buf[0] - '0';
+	sscanf(buf, "%d ", &shortsweep);
+	if (shortsweep < 0 || shortsweep > 1)
+		shortsweep = 0;
 
 	if (shortsweep) {
 		s2w_begin_v = 400 ;
@@ -965,14 +966,18 @@ static ssize_t elan_ktf3k_doubletap2wake_show(struct device *dev, struct device_
 
 static ssize_t elan_ktf3k_doubletap2wake_dump(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-		if (dt2w_switch != buf[0] - '0') {
-			dt2w_switch_temp = buf[0] - '0';
-			if (!scr_suspended)
-				dt2w_switch = dt2w_switch_temp;
-			else
-				dt2w_changed = 1;
-		}
+	int val;
+	sscanf(buf, "%d ", &val);
+	if (val < 0 || val > 1)
+		val = 0;
+
+	if (dt2w_switch != val) {
+		dt2w_switch_temp = val;
+		if (!scr_suspended)
+			dt2w_switch = dt2w_switch_temp;
+		else
+			dt2w_changed = 1;
+	}
 
 	return count;
 }
