@@ -446,6 +446,8 @@ static int msm_pcm_playback_close(struct snd_pcm_substream *substream)
 	SNDRV_PCM_STREAM_PLAYBACK);
 	q6asm_audio_client_free(prtd->audio_client);
 	kfree(prtd);
+	runtime->private_data = NULL;
+
 	return 0;
 }
 
@@ -538,6 +540,7 @@ static int msm_pcm_capture_close(struct snd_pcm_substream *substream)
 	SNDRV_PCM_STREAM_CAPTURE);
 	q6asm_audio_client_free(prtd->audio_client);
 	kfree(prtd);
+	runtime->private_data = NULL;
 
 	return 0;
 }
