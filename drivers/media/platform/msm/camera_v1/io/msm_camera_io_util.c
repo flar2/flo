@@ -168,6 +168,12 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 	int i = 0;
 	int rc = 0;
 	struct camera_vreg_t *curr_vreg;
+
+	if (cam_vreg == NULL) {
+		pr_err("%s:%d cam_vreg sequence invalid\n", __func__, __LINE__);
+		return -EINVAL;
+	}
+
 	if (config) {
 		for (i = 0; i < num_vreg; i++) {
 			curr_vreg = &cam_vreg[i];
