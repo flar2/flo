@@ -1297,13 +1297,16 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 		return -EINVAL;
 	}
 
-	if (!po->running)
-		return -EINVAL;
-
-	if (po->fanout)
-		return -EALREADY;
-
 	mutex_lock(&fanout_mutex);
+
+	err = -EINVAL;
+	if (!po->running)
+		goto out;
+
+	err = -EALREADY;
+	if (po->fanout)
+		goto out;
+
 	match = NULL;
 	list_for_each_entry(f, &fanout_list, list) {
 		if (f->id == id &&
@@ -1358,17 +1361,16 @@ static void fanout_release(struct sock *sk)
 	struct packet_sock *po = pkt_sk(sk);
 	struct packet_fanout *f;
 
-	f = po->fanout;
-	if (!f)
-		return;
-
-	po->fanout = NULL;
-
 	mutex_lock(&fanout_mutex);
-	if (atomic_dec_and_test(&f->sk_ref)) {
-		list_del(&f->list);
-		dev_remove_pack(&f->prot_hook);
-		kfree(f);
+	f = po->fanout;
+	if (f) {
+		po->fanout = NULL;
+
+		if (atomic_dec_and_test(&f->sk_ref)) {
+			list_del(&f->list);
+			dev_remove_pack(&f->prot_hook);
+			kfree(f);
+		}
 	}
 	mutex_unlock(&fanout_mutex);
 }
@@ -3142,6 +3144,8 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 			return -EBUSY;
 		if (copy_from_user(&val, optval, sizeof(val)))
 			return -EFAULT;
+		if (val > INT_MAX)
+			return -EINVAL;
 		po->tp_reserve = val;
 		return 0;
 	}
@@ -3650,6 +3654,8 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 
 		rb->frames_per_block = req->tp_block_size/req->tp_frame_size;
 		if (unlikely(rb->frames_per_block <= 0))
+			goto out;
+		if (unlikely(req->tp_block_size > UINT_MAX / req->tp_block_nr))
 			goto out;
 		if (unlikely((rb->frames_per_block * req->tp_block_nr) !=
 					req->tp_frame_nr))
