@@ -81,6 +81,10 @@ BINDER_DEBUG_ENTRY(proc);
 #define SZ_4M                               0x400000
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX ((size_t)-1)
+#endif
+
 #define FORBIDDEN_MMAP_FLAGS                (VM_WRITE)
 
 #define BINDER_SMALL_BUF_SIZE (PAGE_SIZE * 64)
