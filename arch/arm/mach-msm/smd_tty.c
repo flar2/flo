@@ -174,9 +174,6 @@ static void smd_tty_read(unsigned long param)
 			printk(KERN_ERR "OOPS - smd_tty_buffer mismatch?!");
 		}
 
-#ifdef CONFIG_HAS_WAKELOCK
-		pr_debug("%s: lock wakelock %s\n", __func__, info->wake_lock.name);
-#endif
 		wake_lock_timeout(&info->wake_lock, HZ / 2);
 		tty_flip_buffer_push(tty);
 	}
