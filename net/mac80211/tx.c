@@ -284,9 +284,6 @@ ieee80211_tx_h_check_assoc(struct ieee80211_tx_data *tx)
 	if (tx->sdata->vif.type == NL80211_IFTYPE_WDS)
 		return TX_CONTINUE;
 
-	if (tx->sdata->vif.type == NL80211_IFTYPE_MESH_POINT)
-		return TX_CONTINUE;
-
 	if (tx->flags & IEEE80211_TX_PS_BUFFERED)
 		return TX_CONTINUE;
 
@@ -544,9 +541,11 @@ ieee80211_tx_h_check_control_port_protocol(struct ieee80211_tx_data *tx)
 {
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx->skb);
 
-	if (unlikely(tx->sdata->control_port_protocol == tx->skb->protocol &&
-		     tx->sdata->control_port_no_encrypt))
-		info->flags |= IEEE80211_TX_INTFL_DONT_ENCRYPT;
+	if (unlikely(tx->sdata->control_port_protocol == tx->skb->protocol)) {
+		if (tx->sdata->control_port_no_encrypt)
+			info->flags |= IEEE80211_TX_INTFL_DONT_ENCRYPT;
+		info->flags |= IEEE80211_TX_CTL_USE_MINRATE;
+	}
 
 	return TX_CONTINUE;
 }
@@ -1372,7 +1371,7 @@ static int invoke_tx_handlers(struct ieee80211_tx_data *tx)
 		if (tx->skb)
 			dev_kfree_skb(tx->skb);
 		else
-			__skb_queue_purge(&tx->skbs);
+			ieee80211_purge_tx_queue(&tx->local->hw, &tx->skbs);
 		return -1;
 	} else if (unlikely(res == TX_QUEUED)) {
 		I802_DEBUG_INC(tx->local->tx_handlers_queued);
@@ -2141,10 +2140,13 @@ netdev_tx_t ieee80211_subif_start_xmit(struct sk_buff *skb,
  */
 void ieee80211_clear_tx_pending(struct ieee80211_local *local)
 {
+	struct sk_buff *skb;
 	int i;
 
-	for (i = 0; i < local->hw.queues; i++)
-		skb_queue_purge(&local->pending[i]);
+	for (i = 0; i < local->hw.queues; i++) {
+		while ((skb = skb_dequeue(&local->pending[i])) != NULL)
+			ieee80211_free_txskb(&local->hw, skb);
+	}
 }
 
 /*
