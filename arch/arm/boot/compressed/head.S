@@ -10,7 +10,11 @@
  */
 #include <linux/linkage.h>
 
-	.arch	armv7-a
+#ifdef CONFIG_KEXEC_HARDBOOT
+  #include <asm/kexec.h>
+  #include <asm/memory.h>
+#endif
+
 /*
  * Debugging stuff
  *
@@ -406,11 +410,6 @@ restart:	adr	r0, LC0
 dtb_check_done:
 #endif
 
-#ifdef CONFIG_KEXEC_HARDBOOT
-  #include <asm/kexec.h>
-  #include <asm/memory.h>
-#endif
-
 /*
  * Check to see if we will overwrite ourselves.
  *   r4  = final kernel address
@@ -750,7 +749,6 @@ __armv7_mmu_cache_on:
 		mcrne	p15, 0, r0, c8, c7, 0	@ flush I,D TLBs
 #endif
 		mrc	p15, 0, r0, c1, c0, 0	@ read control reg
-		bic	r0, r0, #1 << 28	@ clear SCTLR.TRE
 		orr	r0, r0, #0x5000		@ I-cache enable, RR cache replacement
 		orr	r0, r0, #0x003c		@ write buffer
 #ifdef CONFIG_MMU
@@ -1334,3 +1332,4 @@ reloc_code_end:
 		.section ".stack", "aw", %nobits
 .L_user_stack:	.space	4096
 .L_user_stack_end:
+
