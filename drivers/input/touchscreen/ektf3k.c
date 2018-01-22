@@ -2500,14 +2500,15 @@ static int elan_ktf3k_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 	if(((!s2w_switch && !dt2w_switch) || (lid_suspend && lid_closed) || (pwrkey_suspend && pwr_key_pressed)) && work_lock == 0) {
 		pwr_key_pressed = 0;
 		lid_closed = 0;
+
+		if(parrot_mod && work_lock == 0) {
+		    rc = elan_ktf3k_ts_rough_calibrate(client);
+		}
+
 		rc = elan_ktf3k_ts_set_power_state(client, PWR_STATE_DEEP_SLEEP);
 	}
 /*s2w*/
 	scr_suspended = true;
-
-	if(parrot_mod && work_lock == 0) {
-	    rc = elan_ktf3k_ts_rough_calibrate(client);
-	}
 
 	return 0;
 }
